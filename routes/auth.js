@@ -34,4 +34,14 @@ router.post("/survey", async (req, res) => {
   }
 });
 
+//Get all users
+router.get("/data", async (req, res) => {
+  try {
+    const data = await surveyScheme.find();
+    res.send(data);
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
 module.exports = router;
