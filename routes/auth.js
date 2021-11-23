@@ -54,9 +54,9 @@ router.get("/count", async (req, res) => {
     const count3 = await surveyScheme.count({ program: "act" });
     // console.log("there are %d jungle adventures", count);
     res.send([
-      { program: "bscs", bscsCount: count1 },
-      { program: "bsit", bsitCount: count2 },
-      { program: "act", actCount: count3 },
+      { program: "bscs", count: count1 },
+      { program: "bsit", count: count2 },
+      { program: "act", count: count3 },
     ]);
   } catch (err) {
     res.status(400).send(err);
