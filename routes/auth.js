@@ -47,12 +47,9 @@ router.get("/data", async (req, res) => {
 //Count all programs
 router.get("/count", async (req, res) => {
   try {
-    // const data = surveyScheme.countDocuments({ program: bscs });
-    // res.send(data);
     const count1 = await surveyScheme.count({ program: "bscs" });
     const count2 = await surveyScheme.count({ program: "bsit" });
     const count3 = await surveyScheme.count({ program: "act" });
-    // console.log("there are %d jungle adventures", count);
     res.send([
       { program: "bscs", count: count1 },
       { program: "bsit", count: count2 },
