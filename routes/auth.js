@@ -119,7 +119,7 @@ router.post("/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.header("auth-token", token).send(token);
+    res.header("auth-token", token).send({ token: token });
   } catch (err) {
     res.status(400).send({ message: err["message"] });
   }
