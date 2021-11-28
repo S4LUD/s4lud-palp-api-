@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { regScheme, logScheme } = require("../models/validation");
 const dotenv = require("dotenv");
+const verify = require("./verifyToken");
 
 dotenv.config();
 
@@ -42,7 +43,7 @@ router.post("/survey", async (req, res) => {
 });
 
 //Get all users
-router.get("/data", async (req, res) => {
+router.get("/data", verify, async (req, res) => {
   try {
     const data = await surveyScheme.find();
     res.send(data);
@@ -52,7 +53,7 @@ router.get("/data", async (req, res) => {
 });
 
 //Count all programs
-router.get("/count", async (req, res) => {
+router.get("/count", verify, async (req, res) => {
   try {
     const count1 = await surveyScheme.count({ program: "bscs" });
     const count2 = await surveyScheme.count({ program: "bsit" });
