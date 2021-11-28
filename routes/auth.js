@@ -107,13 +107,13 @@ router.post("/login", async (req, res) => {
       return res.status(400).send({ error: error["details"][0]["message"] });
 
     const user = await registerScheme.findOne({
-      username: req.body.username,
+      email: req.body.email,
     });
-    if (!user) return res.status(400).send({ username: 0 });
+    if (!user) return res.status(400).send({ email: "email not found." });
 
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass)
-      return res.status(400).send({ message: "Invalid Credentials" });
+      return res.status(400).send({ message: "Invalid Credentials." });
 
     const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
       expiresIn: "1h",
