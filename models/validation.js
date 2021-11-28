@@ -11,7 +11,7 @@ const regScheme = (data) => {
 
 const logScheme = (data) => {
   const schemaLog = Joi.object({
-    username: Joi.string().min(6).required(),
+    email: Joi.string().email().required(),
     password: Joi.string().min(6).max(16).required(),
   });
   return schemaLog.validate(data);
