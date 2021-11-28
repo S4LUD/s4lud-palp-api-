@@ -70,7 +70,8 @@ router.get("/count", async (req, res) => {
 //Register the user
 router.post("/register", async (req, res) => {
   const { error } = regScheme(req.body);
-  if (error) return res.status(400).send(error["details"][0]["message"]);
+  if (error)
+    return res.status(400).send({ error: error["details"][0]["message"] });
 
   const UsernameExist = await registerScheme.findOne({
     username: req.body.username,
@@ -102,7 +103,8 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { error } = logScheme(req.body);
-    if (error) return res.status(400).send(error["details"][0]["message"]);
+    if (error)
+      return res.status(400).send({ error: error["details"][0]["message"] });
 
     const user = await registerScheme.findOne({
       username: req.body.username,
