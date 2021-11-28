@@ -1,5 +1,12 @@
 const router = require("express").Router();
 const surveyScheme = require("../models/surveyScheme");
+const registerScheme = require("../models/registerScheme");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { regScheme, logScheme } = require("../models/validation");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 // Add survey data
 router.post("/survey", async (req, res) => {
@@ -57,6 +64,62 @@ router.get("/count", async (req, res) => {
     ]);
   } catch (err) {
     res.status(400).send(err);
+  }
+});
+
+//Register the user
+router.post("/register", async (req, res) => {
+  const { error } = regScheme(req.body);
+  if (error) return res.status(400).send(error["details"][0]["message"]);
+
+  const UsernameExist = await registerScheme.findOne({
+    username: req.body.username,
+  });
+  if (UsernameExist) return res.status(400).send({ found: 1 });
+
+  const EmailExist = await registerScheme.findOne({
+    email: req.body.email,
+  });
+  if (EmailExist) return res.status(400).send({ found: 1 });
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+  const data = new registerScheme({
+    username: req.body.username,
+    email: req.body.email,
+    password: hashedPassword,
+  });
+
+  try {
+    const UReg = await data.save();
+    if (UReg) return res.send({ message: "OK" });
+  } catch (err) {
+    res.status(400).send({ message: err["message"] });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { error } = logScheme(req.body);
+    if (error) return res.status(400).send(error["details"][0]["message"]);
+
+    const user = await registerScheme.findOne({
+      username: req.body.username,
+    });
+    if (!user) return res.status(400).send({ found: 0 });
+
+    const validPass = await bcrypt.compare(req.body.password, user.password);
+    if (!validPass)
+      return res.status(400).send({ message: "Invalid Credentials" });
+
+    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.header("auth-token", token).send(token);
+  } catch (err) {
+    res.status(400).send({ message: err["message"] });
   }
 });
 
