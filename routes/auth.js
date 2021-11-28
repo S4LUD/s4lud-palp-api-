@@ -76,12 +76,12 @@ router.post("/register", async (req, res) => {
   const UsernameExist = await registerScheme.findOne({
     username: req.body.username,
   });
-  if (UsernameExist) return res.status(400).send({ found: 1 });
+  if (UsernameExist) return res.status(400).send({ username: 1 });
 
   const EmailExist = await registerScheme.findOne({
     email: req.body.email,
   });
-  if (EmailExist) return res.status(400).send({ found: 1 });
+  if (EmailExist) return res.status(400).send({ email: 1 });
 
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -109,7 +109,7 @@ router.post("/login", async (req, res) => {
     const user = await registerScheme.findOne({
       username: req.body.username,
     });
-    if (!user) return res.status(400).send({ found: 0 });
+    if (!user) return res.status(400).send({ username: 0 });
 
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass)
