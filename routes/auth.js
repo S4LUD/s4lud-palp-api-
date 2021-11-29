@@ -68,6 +68,17 @@ router.get("/count", verify, async (req, res) => {
   }
 });
 
+router.post("/verify", async (req, res) => {
+  const token = req.header("auth-token");
+  if (!token) return res.status(401).send({ message: "Access Denied" });
+  try {
+    const verified = jwt.verify(token, process.env.TOKEN_SECRET);
+    res.send(verified);
+  } catch (error) {
+    res.status(400).send({ message: "Session Expired" });
+  }
+});
+
 //Register the user
 router.post("/register", async (req, res) => {
   const { error } = regScheme(req.body);
