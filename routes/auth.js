@@ -78,6 +78,19 @@ router.post("/verify", async (req, res) => {
   }
 });
 
+//Get user data
+router.get("/userdata/:id", verify, async (req, res) => {
+  const UsernameExist = await registerScheme.findOne({
+    _id: req.params.id,
+  });
+
+  try {
+    return res.send(UsernameExist);
+  } catch (err) {
+    res.status(400).send({ message: err["message"] });
+  }
+});
+
 //Register the user
 router.post("/register", async (req, res) => {
   const { error } = regScheme(req.body);
