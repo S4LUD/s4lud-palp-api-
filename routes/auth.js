@@ -70,7 +70,6 @@ router.get("/count", verify, async (req, res) => {
 
 router.post("/verify", async (req, res) => {
   const token = req.header("auth-token");
-  if (!token) return res.status(401).send({ message: "Access Denied" });
   try {
     const verified = jwt.verify(token, process.env.TOKEN_SECRET);
     res.send(verified);
@@ -127,9 +126,13 @@ router.post("/login", async (req, res) => {
     if (!validPass)
       return res.status(400).send({ message: "Invalid Credentials." });
 
-    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { _id: user._id, credential: user.credential },
+      process.env.TOKEN_SECRET,
+      {
+        expiresIn: "12h",
+      }
+    );
 
     res.header("auth-token", token).send({ token: token });
   } catch (err) {
