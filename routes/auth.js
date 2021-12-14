@@ -24,14 +24,23 @@ router.patch("/access", verify, async (req, res) => {
   }
 });
 
+//Delete the student access
+router.delete("/access", verify, async (req, res) => {
+  try {
+    const data = await registerScheme.deleteOne({ _id: req.body.dataID });
+    if (data) return res.send({ message: "OK" });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
 //Get pending student access
-router.get("/getaccess", async (req, res) => {
-  console.log("getaccess");
+router.get("/access", verify, async (req, res) => {
   try {
     const data = await registerScheme.find({
       access: false,
     });
-    res.send(data);
+    if (data) return res.send({ message: "OK" });
   } catch (err) {
     res.status(400).send(err);
   }
