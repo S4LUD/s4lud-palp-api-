@@ -12,17 +12,26 @@ dotenv.config();
 //Pending the student access
 router.patch("/access", verify, async (req, res) => {
   try {
-    const data = await saleScheme.updateOne(
+    const data = await registerScheme.updateOne(
       {
-        _id: req.body.id,
+        _id: req.body._id,
       },
-      {
-        $inc: {
-          access: req.body.access,
-        },
-      }
+      { $set: { access: true } }
     );
     if (data) return res.send({ message: "OK" });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
+//Get pending student access
+router.get("/getaccess", async (req, res) => {
+  console.log("getaccess");
+  try {
+    const data = await registerScheme.find({
+      access: false,
+    });
+    res.send(data);
   } catch (err) {
     res.status(400).send(err);
   }
