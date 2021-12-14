@@ -11,7 +11,7 @@ const surveyScheme = new mongoose.Schema({
   },
   access: { type: Boolean, default: false },
   password: { type: String, required: true },
-  credential: { type: String, default: false },
+  credential: { type: Boolean, default: false },
   date: { type: Date, default: Date.now },
 });
 

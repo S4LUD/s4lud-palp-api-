@@ -71,7 +71,7 @@ router.post("/login", async (req, res) => {
       email: req.body.email,
     });
     if (!user) return res.status(400).send({ email: "email not found." });
-    if (user.access)
+    if (user.access === false)
       return res.status(400).send({ user: "user haven't given permission." });
 
     const validPass = await bcrypt.compare(req.body.password, user.password);
