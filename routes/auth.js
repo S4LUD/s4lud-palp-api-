@@ -9,6 +9,89 @@ const verify = require("./verifyToken");
 
 dotenv.config();
 
+//Pending the student access
+router.patch("/access", verify, async (req, res) => {
+  try {
+    const data = await saleScheme.updateOne(
+      {
+        _id: req.body.id,
+      },
+      {
+        $inc: {
+          access: req.body.access,
+        },
+      }
+    );
+    if (data) return res.send({ message: "OK" });
+  } catch (err) {
+    res.status(400).send(err);
+  }
+});
+
+//Register the user
+router.post("/register", async (req, res) => {
+  const { error } = regScheme(req.body);
+  if (error)
+    return res.status(400).send({ error: error["details"][0]["message"] });
+
+  const UsernameExist = await registerScheme.findOne({
+    username: req.body.username,
+  });
+  if (UsernameExist) return res.status(400).send({ username: 1 });
+
+  const EmailExist = await registerScheme.findOne({
+    email: req.body.email,
+  });
+  if (EmailExist) return res.status(400).send({ email: 1 });
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+  const data = new registerScheme({
+    username: req.body.username,
+    email: req.body.email,
+    password: hashedPassword,
+  });
+
+  try {
+    const UReg = await data.save();
+    if (UReg) return res.send({ message: "OK" });
+  } catch (err) {
+    res.status(400).send({ message: err["message"] });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  try {
+    const { error } = logScheme(req.body);
+    if (error)
+      return res.status(400).send({ error: error["details"][0]["message"] });
+
+    const user = await registerScheme.findOne({
+      email: req.body.email,
+    });
+    if (!user) return res.status(400).send({ email: "email not found." });
+    if (user.access)
+      return res.status(400).send({ user: "user haven't given permission." });
+
+    const validPass = await bcrypt.compare(req.body.password, user.password);
+    if (!validPass)
+      return res.status(400).send({ message: "Invalid Credentials." });
+
+    const token = jwt.sign(
+      { _id: user._id, credential: user.credential },
+      process.env.TOKEN_SECRET,
+      {
+        expiresIn: "12h",
+      }
+    );
+
+    res.header("auth-token", token).send({ token: token });
+  } catch (err) {
+    res.status(400).send({ message: err["message"] });
+  }
+});
+
 // Add survey data
 router.post("/survey", async (req, res) => {
   const data = new surveyScheme({
@@ -86,68 +169,6 @@ router.get("/userdata/:id", verify, async (req, res) => {
 
   try {
     return res.send(UsernameExist);
-  } catch (err) {
-    res.status(400).send({ message: err["message"] });
-  }
-});
-
-//Register the user
-router.post("/register", async (req, res) => {
-  const { error } = regScheme(req.body);
-  if (error)
-    return res.status(400).send({ error: error["details"][0]["message"] });
-
-  const UsernameExist = await registerScheme.findOne({
-    username: req.body.username,
-  });
-  if (UsernameExist) return res.status(400).send({ username: 1 });
-
-  const EmailExist = await registerScheme.findOne({
-    email: req.body.email,
-  });
-  if (EmailExist) return res.status(400).send({ email: 1 });
-
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(req.body.password, salt);
-
-  const data = new registerScheme({
-    username: req.body.username,
-    email: req.body.email,
-    password: hashedPassword,
-  });
-
-  try {
-    const UReg = await data.save();
-    if (UReg) return res.send({ message: "OK" });
-  } catch (err) {
-    res.status(400).send({ message: err["message"] });
-  }
-});
-
-router.post("/login", async (req, res) => {
-  try {
-    const { error } = logScheme(req.body);
-    if (error)
-      return res.status(400).send({ error: error["details"][0]["message"] });
-
-    const user = await registerScheme.findOne({
-      email: req.body.email,
-    });
-    if (!user) return res.status(400).send({ email: "email not found." });
-
-    const validPass = await bcrypt.compare(req.body.password, user.password);
-    if (!validPass)
-      return res.status(400).send({ message: "Invalid Credentials." });
-
-    const token = jwt.sign(
-      { _id: user._id, credential: user.credential },
-      process.env.TOKEN_SECRET,
-      {
-        expiresIn: "12h",
-      }
-    );
-
-    res.header("auth-token", token).send({ token: token });
   } catch (err) {
     res.status(400).send({ message: err["message"] });
   }

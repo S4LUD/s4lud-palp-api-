@@ -9,6 +9,7 @@ const surveyScheme = new mongoose.Schema({
     type: String,
     required: true,
   },
+  access: { type: Boolean, default: false },
   password: { type: String, required: true },
   credential: { type: String, default: false },
   date: { type: Date, default: Date.now },
