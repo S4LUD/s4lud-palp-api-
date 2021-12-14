@@ -27,7 +27,7 @@ router.patch("/access", verify, async (req, res) => {
 //Delete the student access
 router.delete("/access", verify, async (req, res) => {
   try {
-    const data = await registerScheme.deleteOne({ _id: req.body.dataID });
+    const data = await registerScheme.deleteOne({ _id: req.body._id });
     if (data) return res.send({ message: "OK" });
   } catch (err) {
     res.status(400).send(err);
